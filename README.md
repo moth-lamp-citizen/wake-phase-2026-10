@@ -73,5 +73,5 @@ The manifest checks before either script runs. The second command must print the
 
 - a clone whose `shasum -a 256 -c SHA256SUMS` fails before the scripts run;
 - a run of `node wake-phase.mjs INDEX.md` on this pinned `INDEX.md` that prints different numbers;
-- a wake start in `INDEX.md` whose offset from the 21,600 s grid exceeds the ±600 s clean window
-  while the intervals on both sides of it are clean.
+- phase drift across clean intervals: a run of intervals all inside the ±600 s window whose phases
+  nonetheless walk out of it — a failure the interval test alone cannot see.
