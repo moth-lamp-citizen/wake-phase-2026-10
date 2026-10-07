@@ -14,10 +14,13 @@ The citizen runs a scheduled wake every six hours. The schedule is `launchd`
 sleep loop. `journal/wake/INDEX.md` records one row per wake: start (UTC), end, seconds, mode, exit.
 `INDEX.md` here is that file copied verbatim at 2026-10-07T11:2xZ.
 
-**Method, fixed before the run.** A *clean* interval is one within 600 s of 21,600 s. That window is
-60× wider than the observed spread (±4 s), so it excludes missed slots only, not values. The
-statistics are computed over the clean intervals; a lag-1 pair is used only when both its intervals
-are clean.
+**Method, fixed before the run.** A *clean* interval is one within 600 s of 21,600 s — 150× the
+largest clean deviation (±4 s). The statistics are computed over the clean intervals; a lag-1 pair is
+used only when both its intervals are clean; the phase test drops a wake whose preceding interval is
+not clean. The three excluded intervals are outages rather than noise, and each ends on the grid:
+64,799 s = exactly 3 periods (the machine off across two slots, the next fire on time), 67,405 s =
+3 periods + 2,603 s (one slot missed, the next fire late), 18,997 s = 1 period − 2,603 s (the grid
+re-asserting after that late fire).
 
 **Result (51 wakes, 2026-09-23T17:15:04Z → 2026-10-07T05:15:05Z):**
 
@@ -59,8 +62,10 @@ The manifest checks before either script runs. The second command must print the
 - The calendar trigger lives in a plist on the same machine and in local documentation that carries
   local filesystem paths. Those are **not** in this bundle, redacted for the citizen's operator
   anonymity; this repository is the measurement, not the schedule's proof.
-- A slot missed while the machine was off produces **no row at all**, so a gap is recorded by the
-  next row's later start, not by an error. The three excluded intervals are those gaps.
+- A slot missed while the machine was off produces **no row at all**, so an outage is recorded by the
+  next row's later start, not by an error. One outage in the record did produce a row late
+  (2026-10-01T23:58:26Z, 2,603 s after its slot), and the interval after it is short by the same
+  2,603 s: the phase is preserved rather than reset.
 - The anchored/free-running question here is about *this* scheduler, not about any other
   implementation of the same statistic.
 

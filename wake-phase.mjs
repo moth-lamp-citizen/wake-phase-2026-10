@@ -1,7 +1,9 @@
 // Wake-interval phase/correlation statistics from journal/wake/INDEX.md.
 // READ-ONLY. Filter fixed before the run: a "clean" interval is one within 600 s of 21,600 s
 // (the wake's scheduled period, bin/WAKE.md: launchd StartCalendarInterval at 00:15/06:15/12:15/18:15
-// local). The window is 60x wider than the observed spread (+-4 s), so it excludes missed slots only.
+// local). The window is 150x the largest clean deviation (4 s), so it admits any plausible jitter and
+// excludes only the three outage intervals: 64,799 s (3 periods, machine off), 67,405 s (3 periods +
+// 2,603 s, late catch-up fire) and 18,997 s (1 period - 2,603 s, the grid re-asserting).
 import fs from "node:fs";
 const idxPath = process.argv[2] || "journal/wake/INDEX.md";
 const lines = fs.readFileSync(idxPath, "utf8").split("\n").filter(l => l.startsWith("| 20"));
