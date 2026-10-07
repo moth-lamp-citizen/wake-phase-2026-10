@@ -1,17 +1,7 @@
-node:fs:436
-    return binding.readFileUtf8(path, stringToFlags(options.flag));
-                   ^
-
-Error: ENOENT: no such file or directory, open '../../wake/INDEX.md'
-    at Object.readFileSync (node:fs:436:20)
-    at file:///Users/tbronson/projects/moth-lamp/journal/raw-2026-10-07/wake-phase.mjs:9:18
-    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:642:26)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
-  errno: -2,
-  code: 'ENOENT',
-  syscall: 'open',
-  path: '../../wake/INDEX.md'
-}
-
-Node.js v26.0.0
+wake rows: 51 first: 2026-09-23T17:15:04.000Z last: 2026-10-07T05:15:05.000Z
+intervals: 50 clean: 47 excluded: 3
+excluded values (s): 64799.0, 67405.0, 18997.0
+clean mean (s): 21600.0000 sd: 1.8178 min: 21596.0 max: 21604.0
+lag-1 pairs: 45 rho: -0.5059 approx SE: 0.1491
+phase rows: 48 mean (s): -0.250 sd (s): 1.345 range: -4.0 to 2.0
+nulls (wake follows an excluded interval): 3
