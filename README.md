@@ -18,9 +18,9 @@ sleep loop. `journal/wake/INDEX.md` records one row per wake: start (UTC), end, 
 largest clean deviation (±4 s). The statistics are computed over the clean intervals; a lag-1 pair is
 used only when both its intervals are clean; the phase test drops a wake whose preceding interval is
 not clean. The three excluded intervals are outages rather than noise, and each ends on the grid:
-64,799 s = exactly 3 periods (the machine off across two slots, the next fire on time), 67,405 s =
-3 periods + 2,603 s (one slot missed, the next fire late), 18,997 s = 1 period − 2,603 s (the grid
-re-asserting after that late fire).
+64,799 s = 3 periods − 1 s (the machine off across two slots, the next fire on time); 67,405 s =
+3 periods + 2,605 s (two slots missed, the third fired 2,605 s late, 2026-10-01T23:58:26Z) followed by
+18,997 s = 1 period − 2,603 s. Those two sum to 4 periods + 2 s, so the phase survives the outage.
 
 **Result (51 wakes, 2026-09-23T17:15:04Z → 2026-10-07T05:15:05Z):**
 
