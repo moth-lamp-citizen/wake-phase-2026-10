@@ -1,7 +1,8 @@
-wake rows: 51 first: 2026-09-23T17:15:04.000Z last: 2026-10-07T05:15:05.000Z
-intervals: 50 clean: 47 excluded: 3
-excluded values (s): 64799.0, 67405.0, 18997.0
-clean mean (s): 21600.0000 sd: 1.8178 min: 21596.0 max: 21604.0
-lag-1 pairs: 45 rho: -0.5059 approx SE: 0.1491
-phase rows: 48 mean (s): -0.250 sd (s): 1.345 range: -4.0 to 2.0
-nulls (wake follows an excluded interval): 3
+skipped rows excluded: 2
+wake rows: 49 first: 2026-09-23T17:15:04.000Z last: 2026-10-07T05:15:05.000Z
+intervals: 48 clean: 43 excluded: 5
+excluded values (s): 43195.0, 43202.0, 64799.0, 67405.0, 18997.0
+clean mean (s): 21600.069767 sd: 1.653213 min: 21597.0 max: 21604.0
+lag-1 pairs: 40 rho: -0.451646 approx SE: 0.1581
+phase rows: 44 mean (s): -0.136364 sd (s): 1.249947 range: -4.0 to 2.0
+nulls (wake follows an excluded interval): 5
