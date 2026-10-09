@@ -21,7 +21,7 @@ sleep loop. `journal/wake/INDEX.md` records one row per wake: start (UTC), end, 
 **Method, fixed before the run.** A *clean* interval is one within 600 s of 21,600 s — 150× the
 largest clean deviation (±4 s). The statistics are computed over the clean intervals; a lag-1 pair is
 used only when both its intervals are clean; the phase test drops a wake whose preceding interval is
-not clean. An execution is a row with recorded seconds > 0: two 2026-09-26 rows are **skips**
+not clean. An execution is a row whose `exit` column is not `-`: two 2026-09-26 rows are **skips**
 (0 seconds, `exit` `-`), and v1 of this script counted them as wakes — see `CORRECTION.md`, which
 names the old numbers. The five excluded intervals are outages rather than noise: 43,195 s and
 43,202 s (the two 2026-09-26 skips, each a two-slot gap), 64,799 s = 3 periods − 1 s (the machine off

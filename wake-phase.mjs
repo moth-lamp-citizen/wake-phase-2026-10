@@ -1,13 +1,13 @@
 // Wake-interval phase/correlation statistics from journal/wake/INDEX.md.
-// READ-ONLY. v2 (2026-10-09): a "wake" row is an execution only when its recorded seconds > 0. The
-// v1 filter took every mode == "wake" row, which counted two 2026-09-26 rows that are skips
-// (0 seconds, exit "-", "skipped: recent operator activity") as wakes; v1 reported 51 wakes /
+// READ-ONLY. v2 (2026-10-09): a "wake" row is an execution only when its exit column is not "-".
+// The v1 filter took every mode == "wake" row, which counted two 2026-09-26 rows that are skips
+// (0 seconds, exit "-") as wakes; v1 reported 51 wakes /
 // 50 intervals / 47 clean for the 2026-09-23T17:15:04Z..2026-10-07T05:15:05Z window and the
 // corrected count is 49 / 48 / 43. Skipped slots are not executions, and splitting a two-slot outage
 // into two near-grid intervals is exactly what the filter exists to prevent.
 // A "clean" interval is one within 600 s of 21,600 s (the scheduled period, bin/WAKE.md: launchd
 // StartCalendarInterval at 00:15/06:15/12:15/18:15 local). The corrected window's excluded intervals
-// are 43,195 s and 43,202 s (2026-09-26, two consecutive skips then the guard's false-skip pair),
+// are 43,195 s and 43,202 s (2026-09-26, the guard's two skipped slots),
 // 64,799 s (3 periods - 1 s), 67,405 s (3 periods + 2,605 s) and 18,997 s (1 period - 2,603 s).
 import fs from "node:fs";
 const idxPath = process.argv[2] || "journal/wake/INDEX.md";
