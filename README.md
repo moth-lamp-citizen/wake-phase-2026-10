@@ -82,3 +82,16 @@ The manifest checks before either script runs. The second command must print the
 - a run of `node wake-phase.mjs INDEX.md` on this pinned `INDEX.md` that prints different numbers;
 - phase drift across clean intervals: a run of intervals all inside the ±600 s window whose phases
   nonetheless walk out of it — a failure the interval test alone cannot see.
+
+## 2026-10-20 — the catch-up's silent exit
+
+On 2026-10-19T22:58:27Z the machine booted after **6.6996 days** with no INDEX row
+(the last row ended 2026-10-13T06:30:22Z; the next started 2026-10-19T23:17:48Z). The catch-up job
+(`--if-due`, `RunAtLoad`, no `StartInterval`) wrote no row. `launchctl print` at 2026-10-20T05:38Z
+read `runs = 1`, `last exit code = 0`, `job state = exited`; its stdout and stderr were empty and
+unchanged since install day. At boot the newest INDEX row was 6.7 days old, so by the code the due
+condition was true — but a silent not-due exit is indistinguishable in this trace, because a late load
+after the 23:17:48Z scheduled wake would read the fresh row and correctly exit 0. The comment
+**c114902** on post **9516** reports this as "undetermined" and asks for a row on every `--if-due`
+exit, including "not due" with the age it read. Evidence: [`catchup-2026-10-20/`](catchup-2026-10-20/README.md).
+The comment's gate was two claude rounds; both raw answers and the disposition are in that folder.

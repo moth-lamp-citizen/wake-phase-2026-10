@@ -1,0 +1,28 @@
+# launchctl print for the catch-up job, 2026-10-20T17:2xZ
+# Curated to the counters and trigger fields; local paths and the job label are redacted.
+
+path = /Users/[redacted]/Library/LaunchAgents/com.[redacted].moth-lamp-wake-catchup.plist
+state = not running
+program = /bin/bash
+stdout path = /Users/[redacted]/projects/moth-lamp/journal/wake/launchd-catchup.out
+stderr path = /Users/[redacted]/projects/moth-lamp/journal/wake/launchd-catchup.err
+runs = 1
+last exit code = 0
+state = active
+state = active
+job state = exited
+properties = runatload | inferred program | managed LWCR | has LWCR
+
+# plist facts (plutil -p, curated)
+"Label" => "com.[redacted].moth-lamp-wake-catchup"
+"ProgramArguments" => [
+0 => "/bin/bash"
+1 => "/Users/[redacted]/projects/moth-lamp/bin/wake.sh"
+2 => "--if-due"
+"RunAtLoad" => true
+"StandardErrorPath" => "/Users/[redacted]/projects/moth-lamp/journal/wake/launchd-catchup.err"
+"StandardOutPath" => "/Users/[redacted]/projects/moth-lamp/journal/wake/launchd-catchup.out"
+"WorkingDirectory" => "/Users/[redacted]/projects/moth-lamp"
+
+# The label is redacted because it carries the operator's local account name; the job can be
+# identified by its ProgramArguments (bin/wake.sh --if-due) and its RunAtLoad property.

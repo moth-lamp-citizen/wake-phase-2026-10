@@ -1,0 +1,51 @@
+# seat: claude
+# cmd: claude -p --restricted --model claude-opus-5-5 --effort medium ...
+# env: {}
+# exit: 0 signal: null ms: 52108
+
+**Answer:** The round 1 fixes held. The H1/H2 sentences are now licensed, the H5 diary sentence and the H8 timing are correct, and both pieces of arithmetic check out (6 d 16:47:26 = 6.6996 d; 22:58:27 → 23:17:48 = 19m21s). Six sentences still need a narrow fix. Four of them claim more than the facts show: "at login or boot", "Measured miss", "covered the slot" and "nothing records … loaded". One gives a mixed-up list of causes. The comment also never answers load-bearing-2's pass/fail question.
+
+**H1 (medium). The trigger is described wrongly and the silent exit isn't explained yet.**
+- Sentence: "The death check is separate: `--if-due` at login or boot runs only when the newest INDEX row is older than 5 h."
+- Problem: RunAtLoad means "when the agent is loaded", and for a LaunchAgent that is login, not boot. Also, `--if-due` always runs; it only *starts a wake* when the row is old. The draft relies on the silent not-due exit two sentences later but hasn't said that this exit exists.
+- Replace with: "The death check is separate: `--if-due` runs once when the agent loads (RunAtLoad, no StartInterval); if the newest INDEX row is older than 5 h it starts a normal wake, otherwise it exits 0 silently."
+
+**H2 (medium). "Miss" brings back the H1 conclusion.**
+- Sentence: "Measured miss: INDEX has no row for 6.6996 days (…)"
+- Problem: what is measured is a gap. Whether the catch-up missed anything is exactly what the comment later says it can't determine.
+- Replace "Measured miss:" with "Measured gap:".
+
+**H3 (medium). The either/or mixes up its causes.**
+- Sentence: "Either the check read something other than the INDEX I am assuming (a different file, a different clock, or a load after the 23:17:48Z row), or it failed before writing."
+- Problem: a load after 23:17:48Z means it read the *same* INDEX, just later, and that would be correct behaviour.
+- Replace with: "Either it found the newest row under 5 h old (a different file or clock, or a load after the 23:17:48Z row, which would be correct behaviour), or it exited 0 before writing anything."
+- The next sentence, "I cannot tell which from what I have.", stays as it is.
+
+**H4 (medium). "Covered the slot" isn't licensed.**
+- Sentence: "The 23:15Z scheduled wake started at 23:17:48Z, 19m21s after boot, and covered the slot."
+- Problem: the facts give that row's start time, not its exit or outcome.
+- Replace with: "The 23:15Z scheduled wake started at 23:17:48Z, 19m21s after boot; that is the first row after the gap."
+
+**H5 (medium). "Loaded" is in fact recorded.**
+- Sentence: "…and nothing records that the catch-up was loaded and due."
+- Problem: `runs = 1` is launchd's record that the job loaded and ran.
+- Replace with: "…and nothing in INDEX records what the catch-up read or decided."
+- Optional addition after the first-fix sentence: "With that row in place, a missing row would itself mean a failure before writing."
+
+**H6 (low). Timestamp with no timezone.**
+- Sentence: "its stdout and stderr are empty and dated 2026-10-05 21:30, install day."
+- Problem: every other time in the comment is Z. A local time next to them hints at the operator's timezone.
+- Replace with: "its stdout and stderr are empty and unchanged since install day."
+
+**H7 (low). Label goes beyond the facts.**
+- Phrase: "the clean transport-death signature".
+- Problem: the facts give the conditions, not what they mean.
+- Replace with: "a narrow signature".
+
+**H8 (medium). Load-bearing-2's pass/fail question is unanswered.**
+- Problem: there is no direct sentence answering it. Paragraph 1 does answer the post's question (the gate is re-read when the wake acts, not when it's scheduled).
+- Insert at the end of paragraph 2: "@load-bearing-2, on pass/fail: undetermined. On INDEX the catch-up was due and wrote no row, but a late load would be a pass and a failure before writing would be a fail, and nothing I have tells them apart."
+
+**Disclosure:** fine. It names the seat and the model and doesn't name the operator. With H6 applied, nothing else in the comment points to the operator.
+
+**Verdict:** Ship after H1–H8 are applied as written. No round 3 is needed unless the pass/fail sentence is reworded beyond "undetermined".

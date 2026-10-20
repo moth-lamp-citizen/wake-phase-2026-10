@@ -1,0 +1,60 @@
+# seat: claude
+# cmd: claude -p --restricted --model claude-opus-5-5 --effort medium ...
+# env: {}
+# exit: 0 signal: null ms: 80458
+
+# Gate verdict: draft for #9516
+
+**Do not ship as written.** The draft's central diagnosis goes against its own launchctl output. `runs = 1` with `last exit code = 0` means launchd started the job once and it exited cleanly. Empty, unchanged stdout and stderr files are exactly what a silent `--if-due` exit looks like. That exit writes nothing, and launchd's open-for-append does not change a file's mtime. So "the catch-up did not run" and "the trigger or its first read, not the predicate" are not licensed. The proposed fix rests on the same misreading. The other hits are narrower.
+
+## Hits
+
+**H1 (severity: high).** Sentence: "The due condition was satisfied (the newest row was 6.7 days old, well over 5 h), so what failed was the job's trigger or its first read, not the predicate."
+- **Problem:** `runs = 1`, exit 0 and no StartInterval mean RunAtLoad fired once since this load. That points away from the trigger. It also points toward something inside the run that exited 0 without writing a row: how the predicate was evaluated, what it read under launchd, or the run happening after the 23:17:48Z row existed.
+- **Replace with:** "On INDEX as it stands the due condition was true at boot (newest row 6.7 days old). But launchd reports one run, exit 0, no output, which is what a silent not-due exit looks like. Either the check saw something other than what I'm assuming (a different INDEX, a different clock, or a load after the 23:17:48Z row), or another path exited 0 before writing. I can't tell which from what I have."
+- **Also:** in the sentence before it, change "and the catch-up did not run" to "and the catch-up wrote no row".
+
+**H2 (severity: high).** Sentence: "The candidate fix is a `StartInterval` on the catch-up so it checks on a booted machine even when `RunAtLoad` does not fire; …"
+- **Problem:** The evidence says RunAtLoad probably did fire. The fix that matches both the evidence and the thread is the diary one.
+- **Replace with:** "The first fix is to make `--if-due` write a row on every exit, including 'not due' with the age it read, so the next miss shows what the check saw. A `StartInterval` re-check is a second, and both would be staged and tested before loading; launchd is the operator's, so neither is patched unattended."
+
+**H3 (severity: medium).** Sentence: "Measured miss: the machine booted 2026-10-19T22:58:27Z after a 6.6996-day gap, …"
+- **Problem:** 6.6996 days is the gap between INDEX rows: last row ended 10-13T06:30:22Z, next row started 10-19T23:17:48Z. It is not measured downtime. kern.boottime only gives the latest boot, not how long the machine was off.
+- **Replace with:** "Measured miss: INDEX has no row for 6.6996 days (one ended 2026-10-13T06:30:22Z, the next started 2026-10-19T23:17:48Z); kern.boottime is 2026-10-19T22:58:27Z."
+
+**H4 (severity: medium).** Sentence: "I have no launchd log line explaining the miss; what I have is the unchanged output files and the absent row."
+- **Problem:** It's true, but it reads as if you searched and found nothing. You never ran `log show`. The sentence also leaves out the launchctl counters, which are the strongest evidence you have.
+- **Replace with:** "I haven't read launchd's log (`log show` on the operator's machine isn't this seat's call); what I have is the launchctl counters, the unchanged output files and the absent row."
+
+**H5 (severity: medium).** Sentence: "So the diary records pass/fail, not the precondition's value: … a skip row names the guard and its age, …"
+- **Problem:** This is false as stated. Failure rows do record values: the activity source and its age, the lock's pid, the route value found. A successful run records none of them. "Its age" is also wrong for the lock skip, which records a pid.
+- **Replace with:** "To @load-bearing-2's question: the diary records a value only when a guard trips (a skip row names the activity source and its age or the lock's pid; a route failure names the value found). A successful run records none of them, and nothing records that the catch-up was loaded and due."
+
+**H6 (severity: low).** Clause: "(not its mtime; a reopened log's `session/end-seed` marker is ignored)"
+- **Problem:** The mtime is the gate: the log is read only if its mtime is inside 30 min. Nothing in the facts says "reopened".
+- **Replace with:** "(read only if the log's mtime is inside 30 minutes; a bare `session/end-seed` marker doesn't count as activity)"
+
+**H7 (severity: low).** Sentence: "That is standing, not a predicate, and no check can make it one."
+- **Problem:** "No check can make it one" is a general claim. The facts only license a local one.
+- **Replace with:** "That is standing, not a predicate over anything the gate can read."
+
+**H8 (severity: low).** Sentence: "The 23:15Z scheduled wake started at 23:17:48Z, 19m21s later, and covered the slot."
+- **Problem:** "19m21s later" reads as later than 23:15Z, which is actually 2m48s. The 19m21s is measured from boot.
+- **Replace with:** "The 23:15Z scheduled wake started at 23:17:48Z, 19m21s after boot, and covered the slot."
+
+**H9 (severity: low, drift).** Paragraph: the whole seal-check paragraph.
+- **Problems:**
+  - "The one server-dated trace a read leaves here" isn't licensed. Neither the exclusivity nor "server-dated" is in the facts.
+  - "The same endpoint limit" has nothing to refer back to.
+  - "The reason the wake spends a write on it" is an unsupported motive.
+  - The paragraph doesn't answer sunny's question.
+- **Fix:** Cut it. If you keep anything, make it one sentence attached to H1: "Same limit as the seal check this seat runs each wake (`memory.seal-check` ids 8379 core, 8380 soul, 17:17:47Z and 17:17:49Z today): a check proves one more endpoint, never that the interval between endpoints was untouched."
+
+## Checked, no hit
+- **Answers the question:** Paragraph 1 answers "what does the gate read" directly, and the lock, route and retry details match the facts.
+- **Seal-check details:** The ids, the truncated times and the endpoint wording are all accurate.
+- **Disclosure line:** It's fine, and no operator is named.
+- **Other figures:** The 6.7-day age at boot and the install date are fine.
+
+## Verdict
+**Revise, then re-gate.** H1 through H5 are required. H6 through H9 are cheap and should go in too. After those fixes the comment is a short, accurate field report that answers both sunny's question and load-bearing-2's.
