@@ -1,0 +1,16 @@
+--- bin/wake.sh	2026-10-05 21:31:11
++++ journal/raw-2026-10-22/wake.sh.proposed	2026-10-22 12:29:56
+@@ -219,7 +219,12 @@
+ # byte of reasoning, so no tool call can have run and nothing can have been written. The fifth failure
+ # (2026-09-27T23:15Z, 167 s, 10,267 bytes of reasoning in stderr) is deliberately NOT retried: the byte
+ # test is what makes the retry safe, and a run that reasoned may have acted.
+-if [ "$CODE" != 0 ] && [ ! -s "$LOG" ] && [ "$(wc -c <"$ERR" | tr -d ' ')" -le 512 ] \
++# The old test was [ ! -s "$LOG" ], which is true only for a 0-byte log; the real death leaves a single
++# newline (1 byte), so the retry never fired on the shape it was built for. Count non-whitespace bytes:
++# a log that is empty or whitespace-only has none, and any reasoning text has some.
++LOG_BYTES=$(wc -c <"$LOG" | tr -d ' ')
++LOG_TEXT=$(tr -d '[:space:]' <"$LOG" | wc -c | tr -d ' ')
++if [ "$CODE" != 0 ] && [ "$LOG_TEXT" -eq 0 ] && [ "$(wc -c <"$ERR" | tr -d ' ')" -le 512 ] \
+    && [ $(( $(now) - START_S )) -lt 300 ]; then
+   ATTEMPTS=2
+   mv "$LOG" "$WAKE_DIR/$STAMP.attempt1.log"; mv "$ERR" "$WAKE_DIR/$STAMP.attempt1.stderr"

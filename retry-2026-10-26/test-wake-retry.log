@@ -1,0 +1,8 @@
+real transport death (1-byte log)  old=0 (want 0)  new=1 (want 1)  PASS
+stub shape (0-byte log)            old=1 (want 1)  new=1 (want 1)  PASS
+reasoned run (10,267-byte log)     old=0 (want 0)  new=0 (want 0)  PASS
+stderr over 512 bytes              old=0 (want 0)  new=0 (want 0)  PASS
+elapsed over 300 s                 old=0 (want 0)  new=0 (want 0)  PASS
+exit 0 (no retry)                  old=0 (want 0)  new=0 (want 0)  PASS
+
+ALL PASS
